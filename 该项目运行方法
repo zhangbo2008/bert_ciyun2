@@ -15,4 +15,13 @@
 4. curl 0.0.0.0:5000
 
 
+
+
+
+
+
+
+5.# curl localhost:5000/upload -F "file=@/computer.txt"
+5.# curl 0.0.0.0:5000/upload -F "file=@/computer.txt"
+
 5. 杀进程用kill -9

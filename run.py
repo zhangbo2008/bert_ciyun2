@@ -12,7 +12,11 @@ app=Flask(__name__) #变量app是Flask的一个实例并且必须传入一个参
 # 初始化写这里.
 
 import os
-
+'''
+超参数都放到这里.
+'''
+canshu1=0.6
+canshu2=0.6
 
 
 
@@ -139,13 +143,14 @@ def main_mini(lujing):
     print(1127777777777)
     # define A.class
     class node:
-        def __init__(self, id,label,x,y,size,color):
+        def __init__(self, id,label,x,y,size,color,scalar):
             self.id = id
             self.label = label
             self.x = x
             self.y = y
             self.size = size
-            self.cluster=color  # cluster
+            self.color=color  # cluster
+            self.cluster=scalar
 
 
 
@@ -173,6 +178,7 @@ def main_mini(lujing):
         y_pred=KMeans(n_clusters=n_clusters).fit_predict(low_dim_embs)
         colorlist=['red','black','yellow','greenyellow','blue','brown','coral','cyan','deeppink','orange']
 
+#param:{ nodecutoff:0.6,edgecutoff:0.6}
 
 
 
@@ -182,7 +188,20 @@ def main_mini(lujing):
 
         list1=[]
         for i,j in enumerate(bb):
-            list1.append(node(i,j[0],float((float(j[2][0]))),float((float(j[2][1]))),float(j[1]**0.5),colorlist[y_pred[i]]).__dict__)
+            list1.append(
+
+                node(
+
+                    i,
+                    j[0],
+                    float((float(j[2][0]))),
+                    float((float(j[2][1]))),
+                    float(j[1]**0.5),
+                    colorlist[y_pred[i]],
+                    int(y_pred[i])
+
+
+                              ).__dict__)
 
 
 
@@ -216,12 +235,12 @@ def main_mini(lujing):
                         list3.append(edge(bb[left][0],bb[right][0],similar).__dict__)
 
         print(list3,"list3")
-        all3={"clusterNum":n_clusters ,"nodes":list1,"edges":list3}
+        all3={"clusterNum":n_clusters ,"nodes":list1,"edges":list3,"param":{'nodecutoff':canshu1,'edgecutoff':canshu2}}
         final2.append(all3)
 
     print('final2',final2)
     tmp2=json.dumps(final2,ensure_ascii=False)
-
+# 后端, 1: 数据算 2. 前段传过来.
     with open("chuanshuFinal.json",mode='w',encoding='utf-8') as f:
         print("最终json放在chuanshuFinal.json")
         f.write(tmp2)
@@ -261,6 +280,42 @@ def upload():
             tmp222=main_mini('/8/'+tmp)
         return jsonify('/8/'+tmp)
     return r'请改成post方法'
+
+
+@app.route('/upload_json', methods=['POST', 'GET'])
+
+def upload343():
+
+
+    if request.method == 'POST':
+        global canshu1
+        global canshu2
+        a = request.get_data()
+        dict1 = json.loads(a)
+        print(dict1)
+        canshu1=dict1["params"]["nodecutoff"]
+        canshu2=dict1["params"]["edgecutoff"]
+        wordlist=[]
+        for i in dict1["wordslist"]:
+                    for j in i:
+                               wordlist.append(j+'\n')
+        print(wordlist,343434343432432423942389484923)
+        #f = request.files
+        #print(f)
+        if 1:
+            # print(i)
+            # print(type(i))
+            basepath = os.path.dirname(__file__)  # 当前文件所在路径
+            tmp=random.random()+time.time()
+            tmp=r"lastfile"+str(tmp).replace('.','_')
+            with open('/8/'+tmp,'w') as f:
+                f.writelines(wordlist)
+             # 带字符串的一定要前面写上r.这样少了很多转义字符,方便多了!!!!!!!!!!!!!11
+            tmp222=main_mini('/8/'+tmp)
+        return jsonify('/8/'+tmp)
+    return r'请改成post方法'
+
+
 @app.route('/')      #相当于一个装饰器，视图映射，路由系统生成 视图对应url，这边没有指定method .默认使用get
 def first_flask():    #视图函数
     from bert_serving.client import BertClient

@@ -19,6 +19,7 @@ pip3 install tensorflow 1.10
 
 ''' # /root/.local/bin/
 import os
+print(1)
 os.system("nohup bert-serving-start  -model_dir /chinese_L-12_H-768_A-12 -num_worker=1 -cpu &>>1.txt")
 
 
